@@ -168,5 +168,11 @@
     <Resource Include="images\edit.png" />
     <Resource Include="images\save.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="root\Audio\" />
+    <Folder Include="root\Images\" />
+    <Folder Include="root\New folder\" />
+    <Folder Include="root\Videos\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
