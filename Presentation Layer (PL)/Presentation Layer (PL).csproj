@@ -134,6 +134,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="root\Audio\dummy" />
+    <None Include="root\Images\dummy" />
+    <None Include="root\Videos\dummy" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -168,11 +171,6 @@
     <Resource Include="images\edit.png" />
     <Resource Include="images\save.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="root\Audio\" />
-    <Folder Include="root\Images\" />
-    <Folder Include="root\New folder\" />
-    <Folder Include="root\Videos\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
