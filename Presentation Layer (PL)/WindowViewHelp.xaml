@@ -1,0 +1,33 @@
+﻿<Window x:Class="PL.WindowViewHelp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PL"
+        mc:Ignorable="d"
+        Title="Help" Height="460" Width="500">
+    <Grid Margin="4,0,4,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="21" />
+        </Grid.RowDefinitions>
+        <GroupBox Name="gbLocal" Margin="4" Header="Local Directories and Files" Grid.Row="0">
+            <TextBlock Name="tbLocal" TextWrapping="Wrap">
+                Start by going to "Settings -> Supported File Types" and select the type of files you want to use for your slideshow.
+                Next go to "Settings -> Media Root Directory" and select the local directory that contains the files you want to use.
+                If a directory contains supported types "click" on it and the files will appear under "Local Files".
+            </TextBlock>
+        </GroupBox>
+        <GroupBox Name="gbAlbum" Margin="4" Header="Albums and Media Files" Grid.Row="1">
+            <TextBlock x:Name="tbAlbum" TextWrapping="Wrap" Text="When you have located the local files you want to use for your slideshow it's time to create an &quot;Album&quot;. A new album is created by &quot;right-clicking&quot; under &quot;Albums&quot; and selecting &quot;New Album&quot; from the menu that appears. When you have created an album you first need to select it to enable adding content by &quot;dragging and dropping&quot; local files to &quot;Media Files&quot;. Media files can be removed from albums by &quot;right-clicking&quot; on it's file icon and selecting &quot;Delete&quot; from the menu that appears."/>
+        </GroupBox>
+        <GroupBox Name="gbSlideshow" Margin="4" Header="Slideshows and Playlist" Grid.Row="2">
+            <TextBlock x:Name="tbSlideshow" TextWrapping="Wrap"><Run Text="A new slideshow is created by &quot;right-clicking&quot; under &quot;Slideshows&quot; and selecting &quot;New Slideshow&quot; from the menu that appears. When you have created a slideshow you first need to select it to enable adding content by &quot;dragging and dropping&quot; local files or media files to &quot;Playlist&quot;. A slideshow can also be generated based on an album by &quot;right clicking&quot; on an album. Items can be removed from playlists by &quot;right-clicking&quot; on the item and selecting &quot;Delete&quot; from the menu that appears. The order of a playlist can also be rearranged by &quot;dragging and dropping&quot; items."/><Run Text=" Run a slideshow by &quot;right-clicking"/><Run Text="&quot;"/><Run Text=" on "/><Run Text="a slideshow and selecting &quot;Run&quot;"/><Run Text=". The &quot;Esc&quot;-key aborts a running slideshow and &quot;Space&quot;-bar skips ahead."/></TextBlock>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center">
+            <Button Name="closeText" Content="Close" Click="Button_Close_Click" HorizontalAlignment="Center" Margin="0,0,4,0" VerticalAlignment="Top" Width="60" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,319 @@
+﻿<Window x:Class="PL.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PL"
+        mc:Ignorable="d"
+        Title="Media Slideshow Manager" Height="768" Width="1024">
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewCommand_Executed" />
+        <CommandBinding Command="Open" Executed="OpenCommand_Executed" />
+        <CommandBinding Command="Save" Executed="SaveCommand_Executed" />
+        <CommandBinding Command="SaveAs" Executed="SaveAsCommand_Executed" />
+        <CommandBinding Command="Close" Executed="ExitCommand_Executed" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="S" Modifiers="Ctrl+Alt" Command="SaveAs"/>
+        <KeyBinding Key="E" Modifiers="Alt" Command="Close"/>
+    </Window.InputBindings>
+    <Grid Margin="4,0,4,4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="21" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Menu IsMainMenu="True" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,0" Grid.RowSpan="2">
+            <Menu.Background>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.WindowColorKey}}"/>
+            </Menu.Background>
+            <MenuItem Name="miFile" Header="File">
+                <MenuItem Name="miNew" Header="New" Command="New" />
+                <MenuItem Name="miOpen" Header="Open..." Command="Open" />
+                <MenuItem Name="miSave" Header="Save" Command="Save"/>
+                <MenuItem Name="miSaveAs" Header="Save as..." Command="SaveAs" InputGestureText="Ctrl+Alt+S" IsEnabled="false"/>
+                <Separator />
+                <MenuItem Name="miExit" Header="Exit" Command="Close" InputGestureText="Alt+X"/>
+            </MenuItem>
+            <MenuItem Name="miSettings" Header="Settings">
+                <MenuItem Name="miExtensions" Header="Supported File Types" Click="ExtensionsCommand_Executed" />
+                <MenuItem Name="miRoot" Header="Media Root Directory" Click="RootCommand_Executed"/>
+            </MenuItem>
+            <MenuItem Name="miHelp" Header="Help">
+                <MenuItem Name="miViewHelp" Header="View Help" Click="ViewHelpCommand_Executed" />
+            </MenuItem>
+        </Menu>
+        <GroupBox Name="gbLocalDirectories" Margin="4" Header="Local Directories" Grid.Row="1" Grid.Column="0">
+            <TreeView x:Name="localDirectories" TreeViewItem.Expanded="LocalDirectoriesItem_Expanded" TreeViewItem.Selected="LocalDirectoriesItem_Selected">
+                <TreeView.Resources>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Width="16" Height="16" Source="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TreeViewItem}}, Path=Header,Converter={x:Static local:HeaderToImageConverter.Instance}}" />
+                                        <TextBlock Text="{Binding}" Grid.Column="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TreeView.Resources>
+            </TreeView>
+        </GroupBox>
+        <GroupBox Name="gbLocalFiles" Margin="4" Header="Local Files" Grid.Row="1" Grid.Column="1">
+            <ListView Name="localFiles" PreviewMouseMove="ListView_PreviewMouseMove" PreviewMouseLeftButtonDown="ListView_MouseLeftButtonDown">
+                <ListView.Resources>
+                    <ContextMenu x:Key="LocalFileItem">
+                        <MenuItem Header="Open" Click="OpenFile_Click" FontWeight="Bold"/>
+                    </ContextMenu>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="ContextMenu" Value="{StaticResource LocalFileItem}"/>
+                        <EventSetter Event="MouseDoubleClick" Handler="OpenFile_Click" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="5"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <Image Width="100" Height="100" Margin="5" >
+                                    <Image.Source>
+                                        <BitmapImage DecodePixelWidth="100" UriSource="{Binding Path=Image}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock TextAlignment="Center" Grid.Row="1" Text="{Binding Path=Name}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </GroupBox>
+        <GridSplitter Grid.Row="2" Grid.ColumnSpan="2" Height="5" HorizontalAlignment="Stretch" />
+        <GroupBox Name="gbAlbums" Margin="4" Header="Albums" Grid.Row="3" Grid.Column="0">
+            <TreeView Name="albumTree" SelectedItemChanged="AlbumTree_SelectedItemChanged" ItemsSource="{Binding albumList}" HorizontalContentAlignment="Stretch" Grid.Row="0" Grid.ColumnSpan="2" TreeViewItem.Selected="AlbumTree_ItemSelected">
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="New Album" Click="NewAlbum_Click"/>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+                <TreeView.Resources>
+                    <ContextMenu x:Key="TreeViewItem">
+                        <MenuItem Header="New" Click="NewAlbum_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Generate...">
+                            <MenuItem Header="Slideshow" Click="GenerateSlideshow_Click"/>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="Delete" Click="DeleteAlbum_Click"/>
+                        <MenuItem Header="Rename" Click="RenameAlbum_Click"/>
+                    </ContextMenu>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Width="16" Height="16" Source="images/album.png" />
+                                        <TextBlock Text="{Binding Name}" Grid.Column="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ContextMenu" Value="{StaticResource TreeViewItem}"/>
+                    </Style>
+                </TreeView.Resources>
+            </TreeView>
+        </GroupBox>
+        <GroupBox Name="gbMediaFiles" Margin="4" Header="Media Files" Grid.Row="3" Grid.Column="1">
+            <ListView Name="albumFiles" Drop="AlbumFiles_Drop" DragEnter="ListView_DragEnter" PreviewMouseMove="ListView_PreviewMouseMove" PreviewMouseLeftButtonDown="ListView_MouseLeftButtonDown" AllowDrop="True" IsEnabled="False">
+                <ListView.Resources>
+                    <ContextMenu x:Key="AlbumFileItem">
+                        <MenuItem Header="Open" Click="OpenFile_Click" FontWeight="Bold"/>
+                        <Separator/>
+                        <MenuItem Header="Delete" Click="MediaFileDelete_Click"/>
+                    </ContextMenu>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="ContextMenu" Value="{StaticResource AlbumFileItem}"/>
+                        <EventSetter Event="MouseDoubleClick" Handler="OpenFile_Click" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="5"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <Image Width="100" Height="100" Margin="5">
+                                    <Image.Source>
+                                        <BitmapImage DecodePixelWidth="100" UriSource="{Binding Path=Image}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock TextAlignment="Center" Grid.Row="1" Text="{Binding Path=Name}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </GroupBox>
+        <GridSplitter Grid.Row="4" Grid.ColumnSpan="2" Height="5" HorizontalAlignment="Stretch" />
+        <GroupBox Name="gbSlideshows" Margin="4" Header="Slideshows" Grid.Row="5" Grid.Column="0">
+            <TreeView Name="slideshowTree" SelectedItemChanged="SlideshowTree_SelectedItemChanged" ItemsSource="{Binding slideshowList}" HorizontalContentAlignment="Stretch" Grid.Row="0" Grid.ColumnSpan="2" TreeViewItem.Selected="SlideshowTree_ItemSelected">
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="New Slideshow" Click="NewSlideshow_Click"/>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+                <TreeView.Resources>
+                    <ContextMenu x:Key="TreeViewItem">
+                        <MenuItem Header="Run" Click="RunSlideshow_Click" FontWeight="Bold"/>
+                        <Separator/>
+                        <MenuItem Header="New" Click="NewSlideshow_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Delete" Click="DeleteSlideshow_Click"/>
+                        <MenuItem Header="Rename" Click="RenameSlideshow_Click"/>
+                    </ContextMenu>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Width="16" Height="16" Source="images/slideshow.png" />
+                                        <TextBlock Text="{Binding Name}" Grid.Column="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ContextMenu" Value="{StaticResource TreeViewItem}"/>
+                    </Style>
+                </TreeView.Resources>
+            </TreeView>
+        </GroupBox>
+        <GroupBox Name="gbPlaylist" Margin="4" Header="Playlist" Grid.Row="5" Grid.Column="1">
+            <ListView Name="playList" Drop="PlayList_Drop" DragEnter="ListView_DragEnter" PreviewMouseMove="ListView_PreviewMouseMove" PreviewMouseLeftButtonDown="ListView_MouseLeftButtonDown" AllowDrop="True" IsEnabled="False">
+                <ListView.Resources>
+                    <ContextMenu x:Key="PlayListItem">
+                        <MenuItem Header="Open" Click="OpenFile_Click" FontWeight="Bold"/>
+                        <Separator/>
+                        <MenuItem Header="Delete" Click="PlaylistItemDelete_Click"/>
+                    </ContextMenu>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="ContextMenu" Value="{StaticResource PlayListItem}"/>
+                        <EventSetter Event="MouseDoubleClick" Handler="OpenFile_Click" />
+                    </Style>
+                    <Style TargetType="{x:Type GridViewColumnHeader}">
+                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Width="30" Height="30" Source="{Binding Image}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Description" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <StackPanel Visibility="{Binding SaveDescription}" Orientation="Horizontal">
+                                            <Button Click="SaveDescription_Click" Content="SAVE" Width="12" Height="12">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Image Source="images/save.png"/>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                            <TextBox Margin="4,0,4,0" Padding="2" TextAlignment="Left" Text="{Binding Description}" TextChanged="TextChangedEventHandler"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding EditDescription}" Orientation="Horizontal">
+                                            <Button Click="EditDescription_Click" Content="EDIT" Width="12" Height="12">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Image Source="images/edit.png"/>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                            <TextBlock Margin="7,0,7,0" Padding="2" TextAlignment="Left" Text="{Binding Description}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Duration (s)" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <StackPanel Visibility="{Binding SaveDuration}" Orientation="Horizontal">
+                                            <Button Click="SaveDuration_Click" Content="SAVE" Width="12" Height="12">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Image Source="images/save.png"/>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                            <TextBox Name="DigitOnly" Margin="4,0,4,0" Padding="2" TextAlignment="Left" Text="{Binding Duration}" TextChanged="TextChangedEventHandler"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding EditDuration}" Orientation="Horizontal">
+                                            <Button Click="EditDuration_Click" Content="EDIT" Width="12" Height="12">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Image Source="images/edit.png"/>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                            <TextBlock Margin="7,0,7,0" Padding="2" TextAlignment="Left" Text="{Binding Duration}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </GroupBox>
+    </Grid>
+</Window>
