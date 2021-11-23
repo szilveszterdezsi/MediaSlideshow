@@ -17,7 +17,7 @@ namespace BLL
     /// </summary>
     public class MainController
     {
-        public string mediaRootDirectory = @"..\\..\\..\\..\\TestFiles";
+        public string mediaRootDirectory = @"..\\..\\..\\TestFiles";
         public List<string> supportedExtensions = new List<string>();
         public List<string> supportedImageExtensions = new List<string>();
         public List<string> supportedVideoExtensions = new List<string>();
